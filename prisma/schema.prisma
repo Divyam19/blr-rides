@@ -1,0 +1,225 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  bio           String?
+  avatar        String?
+  location      String?
+  bikeModel     String?
+  experience    String?   // beginner, intermediate, advanced
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  posts         Post[]
+  comments      Comment[]
+  hostedRides   Ride[]    @relation("RideHost")
+  rideParticipants RideParticipant[]
+  conversations ConversationParticipant[]
+  messages      Message[]
+  notifications Notification[]
+  preferences   UserPreference?
+  votes         Vote[]
+  followers     Follow[]  @relation("UserFollowers")
+  following     Follow[]  @relation("UserFollowing")
+  bookmarks     Bookmark[]
+  reputation    Int       @default(0)
+}
+
+model Post {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  authorId      String
+  communityType String    @default("general") // general, rides, questions, marketplace
+  upvotes       Int       @default(0)
+  downvotes     Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  votes         Vote[]
+  bookmarks     Bookmark[]
+}
+
+model Comment {
+  id            String    @id @default(cuid())
+  content       String
+  postId        String
+  authorId      String
+  parentId      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent        Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies       Comment[] @relation("CommentReplies")
+}
+
+model Ride {
+  id              String    @id @default(cuid())
+  title           String
+  description     String
+  hostId          String
+  startLocation   String
+  endLocation     String
+  date            DateTime
+  difficulty      String    // easy, medium, hard
+  maxParticipants Int       @default(20)
+  isAIGenerated   Boolean   @default(false)
+  status          String    @default("upcoming") // upcoming, ongoing, completed, cancelled
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  host            User      @relation("RideHost", fields: [hostId], references: [id], onDelete: Cascade)
+  participants    RideParticipant[]
+}
+
+model RideParticipant {
+  id        String   @id @default(cuid())
+  rideId    String
+  userId    String
+  status    String   @default("pending") // pending, confirmed, declined
+  joinedAt  DateTime @default(now())
+
+  ride      Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rideId, userId])
+  @@index([rideId])
+  @@index([userId])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  isGroup   Boolean   @default(false)
+  name      String?
+  avatar    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  conversationId String
+  userId         String
+  joinedAt       DateTime @default(now())
+  lastReadAt     DateTime?
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, userId])
+  @@index([userId])
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String
+  timestamp      DateTime  @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model RulesKnowledgeBase {
+  id       String   @id @default(cuid())
+  category String
+  question String
+  answer   String   @db.Text
+  tags     String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([tags])
+  @@unique([category, question])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // ride_invite, comment, mention, ride_reminder, etc.
+  content   String
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+model UserPreference {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  notificationSettings Json     @default("{}")
+  aiRecommendations   Boolean  @default(true)
+  theme               String   @default("light")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+  type   String // upvote, downvote
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Bookmark {
+  id     String @id @default(cuid())
+  userId String
+  postId String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+}
+

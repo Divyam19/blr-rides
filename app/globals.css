@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  /* Vibrant blue/cyan primary - energetic and modern */
+  --color-primary: oklch(55% 0.22 250);
+  --color-primary-foreground: oklch(98% 0.005 250);
+  
+  /* Bright, clean background */
+  --color-background: oklch(99% 0.005 250);
+  --color-foreground: oklch(15% 0.02 250);
+  
+  /* Card with subtle tint */
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0.02 250);
+  
+  /* Popover */
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(15% 0.02 250);
+  
+  /* Vibrant secondary - orange/amber accent */
+  --color-secondary: oklch(85% 0.15 75);
+  --color-secondary-foreground: oklch(25% 0.05 75);
+  
+  /* Muted with slight color */
+  --color-muted: oklch(96% 0.01 250);
+  --color-muted-foreground: oklch(50% 0.03 250);
+  
+  /* Accent - vibrant cyan */
+  --color-accent: oklch(70% 0.18 200);
+  --color-accent-foreground: oklch(20% 0.05 200);
+  
+  /* Destructive - vibrant red */
+  --color-destructive: oklch(60% 0.22 25);
+  --color-destructive-foreground: oklch(98% 0.005 25);
+  
+  /* Borders with slight color */
+  --color-border: oklch(88% 0.015 250);
+  --color-input: oklch(95% 0.01 250);
+  --color-ring: oklch(55% 0.22 250);
+  
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @theme {
+    /* Dark mode with vibrant accents */
+    --color-background: oklch(12% 0.02 250);
+    --color-foreground: oklch(95% 0.01 250);
+    
+    --color-card: oklch(15% 0.025 250);
+    --color-card-foreground: oklch(95% 0.01 250);
+    
+    --color-popover: oklch(15% 0.025 250);
+    --color-popover-foreground: oklch(95% 0.01 250);
+    
+    /* Vibrant primary in dark mode */
+    --color-primary: oklch(65% 0.25 250);
+    --color-primary-foreground: oklch(15% 0.02 250);
+    
+    /* Vibrant secondary */
+    --color-secondary: oklch(30% 0.12 75);
+    --color-secondary-foreground: oklch(90% 0.02 75);
+    
+    --color-muted: oklch(20% 0.03 250);
+    --color-muted-foreground: oklch(70% 0.04 250);
+    
+    /* Bright accent */
+    --color-accent: oklch(55% 0.20 200);
+    --color-accent-foreground: oklch(15% 0.02 200);
+    
+    --color-destructive: oklch(55% 0.25 25);
+    --color-destructive-foreground: oklch(95% 0.01 25);
+    
+    --color-border: oklch(25% 0.04 250);
+    --color-input: oklch(20% 0.03 250);
+    --color-ring: oklch(65% 0.25 250);
   }
 }
 
+* {
+  border-color: var(--color-border);
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Add vibrant button hover effects */
+button:hover, a:hover {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Smooth transitions for interactive elements */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
 }
