@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { AIWritingAssistant } from "@/components/AIWritingAssistant"
+import { Sparkles } from "lucide-react"
 
 const createPostSchema = z.object({
   title: z.string().min(1).max(200),
@@ -45,6 +47,57 @@ export default function CreatePostPage() {
   })
 
   const communityType = watch("communityType")
+  const title = watch("title")
+  const content = watch("content")
+
+  const generatePostContent = async (prompt: string, existingContent?: string) => {
+    const response = await fetch("/api/ai/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "post",
+        topic: prompt || title || "general post",
+        communityType: communityType,
+        existingContent: existingContent,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || "Failed to generate content")
+    }
+
+    const data = await response.json()
+    return data.content
+  }
+
+  const improvePostContent = async (text: string) => {
+    const response = await fetch("/api/ai/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "improve",
+        text: text,
+        context: `Post in ${communityType} community`,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || "Failed to improve content")
+    }
+
+    const data = await response.json()
+    return data.content
+  }
+
+  const handleAIContentGenerated = (generatedContent: string) => {
+    setValue("content", generatedContent)
+  }
+
+  const handleAIContentImproved = (improvedContent: string) => {
+    setValue("content", improvedContent)
+  }
 
   const onSubmit = async (data: CreatePostForm) => {
     setIsLoading(true)
@@ -117,10 +170,25 @@ export default function CreatePostPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="content">Content</Label>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Sparkles className="h-3 w-3" />
+                  <span>AI Powered</span>
+                </div>
+              </div>
+              <AIWritingAssistant
+                onContentGenerated={handleAIContentGenerated}
+                onContentImproved={handleAIContentImproved}
+                generateContent={generatePostContent}
+                improveContent={improvePostContent}
+                currentContent={content}
+                placeholder="Describe what you want to write about..."
+                context={communityType}
+              />
               <Textarea
                 id="content"
-                placeholder="Write your post..."
+                placeholder="Write your post... or use AI to generate content above"
                 rows={10}
                 {...register("content")}
               />

@@ -12,7 +12,24 @@ export async function GET(
     const { id } = await params
     const ride = await prisma.ride.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startLocation: true,
+        endLocation: true,
+        startLat: true,
+        startLng: true,
+        endLat: true,
+        endLng: true,
+        routePolyline: true,
+        date: true,
+        difficulty: true,
+        maxParticipants: true,
+        isAIGenerated: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
         host: {
           select: {
             id: true,
@@ -73,7 +90,7 @@ export async function DELETE(
     }
 
     await prisma.ride.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })

@@ -79,7 +79,17 @@ export default function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-12 relative">
+        <div className="mb-6 flex justify-center">
+          <div className="relative w-full max-w-xl h-48 md:h-64 rounded-xl overflow-hidden shadow-lg border border-border/50">
+            <img 
+              src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80" 
+              alt="Bikers on road"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent"></div>
+          </div>
+        </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
           Welcome to BLR Riders
         </h1>
@@ -88,7 +98,7 @@ export default function HomePage() {
         </p>
         <div className="flex gap-4 justify-center flex-wrap">
           <Link href="/rides">
-            <Button size="lg">
+            <Button size="lg" className="shadow-md">
               <Bike className="h-5 w-5 mr-2" />
               Browse Rides
             </Button>

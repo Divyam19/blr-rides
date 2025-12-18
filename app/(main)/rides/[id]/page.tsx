@@ -5,7 +5,9 @@ import { useParams, useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MapPin, Calendar, Users, Trash2, User } from "lucide-react"
+import { MapPin, Calendar, Users, Trash2, User, Play } from "lucide-react"
+import { RideMap } from "@/components/RideMap"
+import { LiveTracking } from "@/components/LiveTracking"
 
 interface Ride {
   id: string
@@ -19,6 +21,11 @@ interface Ride {
   }
   startLocation: string
   endLocation: string
+  startLat?: number | null
+  startLng?: number | null
+  endLat?: number | null
+  endLng?: number | null
+  routePolyline?: string | null
   date: Date
   difficulty: string
   maxParticipants: number
@@ -131,6 +138,26 @@ export default function RideDetailPage() {
     }
   }
 
+  const handleStartRide = async () => {
+    if (!confirm("Start the ride? Participants will be able to track their location.")) return
+
+    try {
+      const response = await fetch(`/api/rides/${params.id}/start`, {
+        method: "POST",
+      })
+
+      if (response.ok) {
+        fetchRide()
+      } else {
+        const data = await response.json()
+        alert(data.error || "Failed to start ride")
+      }
+    } catch (error) {
+      console.error("Error starting ride:", error)
+      alert("Something went wrong")
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -238,19 +265,58 @@ export default function RideDetailPage() {
             </div>
           </div>
 
-          {ride.status === "upcoming" && !isHost && (
+          {/* Route Map */}
+          {(ride.startLat && ride.startLng) || (ride.endLat && ride.endLng) ? (
             <div className="mb-6">
-              {isParticipant ? (
-                <Button variant="outline" onClick={handleLeave} disabled={isJoining}>
-                  Leave Ride
-                </Button>
-              ) : (
-                <Button onClick={handleJoin} disabled={isJoining || spotsLeft === 0}>
-                  {isJoining ? "Joining..." : spotsLeft === 0 ? "Ride Full" : "Join Ride"}
-                </Button>
-              )}
+              <h3 className="text-lg font-semibold mb-3">Route Map</h3>
+              <RideMap
+                startLat={ride.startLat}
+                startLng={ride.startLng}
+                endLat={ride.endLat}
+                endLng={ride.endLng}
+                routePolyline={ride.routePolyline}
+              />
+            </div>
+          ) : null}
+
+          {/* Live Tracking for ongoing rides */}
+          {ride.status === "ongoing" && (
+            <div className="mb-6 border-t pt-6">
+              <LiveTracking
+                rideId={ride.id}
+                startLat={ride.startLat}
+                startLng={ride.startLng}
+                endLat={ride.endLat}
+                endLng={ride.endLng}
+                routePolyline={ride.routePolyline}
+                isHost={isHost}
+                isParticipant={isParticipant}
+              />
             </div>
           )}
+
+          {/* Action Buttons */}
+          <div className="mb-6 flex gap-2">
+            {ride.status === "upcoming" && isHost && (
+              <Button onClick={handleStartRide}>
+                <Play className="h-4 w-4 mr-2" />
+                Start Ride
+              </Button>
+            )}
+            {ride.status === "upcoming" && !isHost && (
+              <>
+                {isParticipant ? (
+                  <Button variant="outline" onClick={handleLeave} disabled={isJoining}>
+                    Leave Ride
+                  </Button>
+                ) : (
+                  <Button onClick={handleJoin} disabled={isJoining || spotsLeft === 0}>
+                    {isJoining ? "Joining..." : spotsLeft === 0 ? "Ride Full" : "Join Ride"}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
 
           <div className="border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Participants</h3>

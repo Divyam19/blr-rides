@@ -36,6 +36,7 @@ model User {
   following     Follow[]  @relation("UserFollowing")
   bookmarks     Bookmark[]
   reputation    Int       @default(0)
+  locationUpdates RideLocationUpdate[]
 }
 
 model Post {
@@ -77,6 +78,11 @@ model Ride {
   hostId          String
   startLocation   String
   endLocation     String
+  startLat        Float?
+  startLng        Float?
+  endLat          Float?
+  endLng          Float?
+  routePolyline   String?   // Encoded polyline for the route
   date            DateTime
   difficulty      String    // easy, medium, hard
   maxParticipants Int       @default(20)
@@ -87,6 +93,7 @@ model Ride {
 
   host            User      @relation("RideHost", fields: [hostId], references: [id], onDelete: Cascade)
   participants    RideParticipant[]
+  locationUpdates RideLocationUpdate[]
 }
 
 model RideParticipant {
@@ -101,6 +108,21 @@ model RideParticipant {
 
   @@unique([rideId, userId])
   @@index([rideId])
+  @@index([userId])
+}
+
+model RideLocationUpdate {
+  id        String   @id @default(cuid())
+  rideId    String
+  userId    String
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+
+  ride      Ride     @relation(fields: [rideId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([rideId, timestamp])
   @@index([userId])
 }
 

@@ -10,6 +10,11 @@ const createRideSchema = z.object({
   description: z.string().min(1),
   startLocation: z.string().min(1),
   endLocation: z.string().min(1),
+  startLat: z.number().optional().nullable(),
+  startLng: z.number().optional().nullable(),
+  endLat: z.number().optional().nullable(),
+  endLng: z.number().optional().nullable(),
+  routePolyline: z.string().optional().nullable(),
   date: z.string().datetime(),
   difficulty: z.enum(["easy", "medium", "hard"]),
   maxParticipants: z.number().int().min(2).max(100).default(20),
@@ -111,8 +116,18 @@ export async function POST(request: Request) {
 
     const ride = await prisma.ride.create({
       data: {
-        ...data,
+        title: data.title,
+        description: data.description,
+        startLocation: data.startLocation,
+        endLocation: data.endLocation,
+        startLat: data.startLat ?? null,
+        startLng: data.startLng ?? null,
+        endLat: data.endLat ?? null,
+        endLng: data.endLng ?? null,
+        routePolyline: data.routePolyline ?? null,
         date: new Date(data.date),
+        difficulty: data.difficulty,
+        maxParticipants: data.maxParticipants,
         hostId: session.user.id,
       },
       include: {

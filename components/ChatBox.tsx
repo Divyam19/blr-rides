@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Send } from "lucide-react"
+import { Send, Sparkles, X } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 interface Message {
@@ -28,6 +28,9 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
   const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,6 +40,13 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
     const interval = setInterval(fetchMessages, 2000)
     return () => clearInterval(interval)
   }, [conversationId])
+
+  useEffect(() => {
+    // Load suggestions when messages change
+    if (messages.length > 0 && !showSuggestions) {
+      loadSuggestions()
+    }
+  }, [messages.length])
 
   useEffect(() => {
     scrollToBottom()
@@ -70,6 +80,40 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
+  const loadSuggestions = async () => {
+    if (loadingSuggestions) return
+
+    setLoadingSuggestions(true)
+    try {
+      const conversationContext = messages.slice(-5).map((m) => m.content)
+      const lastMessage = messages.length > 0 ? messages[messages.length - 1].content : undefined
+
+      const response = await fetch("/api/ai/chat-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          conversationContext,
+          lastMessage,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setSuggestions(data.suggestions || [])
+        setShowSuggestions(true)
+      }
+    } catch (error) {
+      console.error("Error loading suggestions:", error)
+    } finally {
+      setLoadingSuggestions(false)
+    }
+  }
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setContent(suggestion)
+    setShowSuggestions(false)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!content.trim() || isSubmitting) return
@@ -100,6 +144,7 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
 
       if (response.ok) {
         fetchMessages()
+        setShowSuggestions(false) // Hide suggestions after sending
       } else {
         // Remove optimistic message on error
         setMessages(messages)
@@ -164,12 +209,46 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
           )}
           <div ref={messagesEndRef} />
         </div>
-        <form onSubmit={handleSubmit} className="border-t p-4">
+        <form onSubmit={handleSubmit} className="border-t p-4 space-y-2">
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="flex flex-wrap gap-2 pb-2">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mr-2">
+                <Sparkles className="h-3 w-3" />
+                <span>Suggestions:</span>
+              </div>
+              {suggestions.map((suggestion, index) => (
+                <Button
+                  key={index}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs h-7"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion}
+                </Button>
+              ))}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0"
+                onClick={() => setShowSuggestions(false)}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
           <div className="flex gap-2">
             <Input
               placeholder="Type a message..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              onFocus={() => {
+                if (messages.length > 0 && !showSuggestions) {
+                  loadSuggestions()
+                }
+              }}
               disabled={isSubmitting}
             />
             <Button type="submit" disabled={isSubmitting || !content.trim()}>

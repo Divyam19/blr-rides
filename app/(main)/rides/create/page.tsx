@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -17,6 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { MapPicker } from "@/components/MapPicker"
+import { AIWritingAssistant } from "@/components/AIWritingAssistant"
+import { Sparkles } from "lucide-react"
 
 const createRideSchema = z.object({
   title: z.string().min(1).max(200),
@@ -35,6 +38,9 @@ export default function CreateRidePage() {
   const router = useRouter()
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [mapMode, setMapMode] = useState<"start" | "end">("start")
+  const [startPosition, setStartPosition] = useState<{ lat: number; lng: number } | null>(null)
+  const [endPosition, setEndPosition] = useState<{ lat: number; lng: number } | null>(null)
 
   const {
     register,
@@ -51,6 +57,93 @@ export default function CreateRidePage() {
   })
 
   const difficulty = watch("difficulty")
+  const startLocation = watch("startLocation")
+  const endLocation = watch("endLocation")
+  const title = watch("title")
+  const description = watch("description")
+
+  // Reverse geocode coordinates to address
+  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+      )
+      const data = await response.json()
+      if (data.display_name) {
+        return data.display_name
+      }
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    } catch (error) {
+      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+    }
+  }
+
+  const handleStartSelect = async (position: { lat: number; lng: number }) => {
+    setStartPosition(position)
+    const address = await reverseGeocode(position.lat, position.lng)
+    setValue("startLocation", address)
+  }
+
+  const handleEndSelect = async (position: { lat: number; lng: number }) => {
+    setEndPosition(position)
+    const address = await reverseGeocode(position.lat, position.lng)
+    setValue("endLocation", address)
+  }
+
+  const generateRideDescription = async (prompt: string, existingDescription?: string) => {
+    if (!title || !startLocation || !endLocation || !difficulty) {
+      throw new Error("Please fill in title, start location, end location, and difficulty first")
+    }
+
+    const response = await fetch("/api/ai/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "ride",
+        title: title,
+        startLocation: startLocation,
+        endLocation: endLocation,
+        difficulty: difficulty,
+        existingContent: existingDescription,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || "Failed to generate description")
+    }
+
+    const data = await response.json()
+    return data.content
+  }
+
+  const improveRideDescription = async (text: string) => {
+    const response = await fetch("/api/ai/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "improve",
+        text: text,
+        context: `Ride description: ${title} from ${startLocation} to ${endLocation}`,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      throw new Error(data.error || "Failed to improve description")
+    }
+
+    const data = await response.json()
+    return data.content
+  }
+
+  const handleAIDescriptionGenerated = (generatedDescription: string) => {
+    setValue("description", generatedDescription)
+  }
+
+  const handleAIDescriptionImproved = (improvedDescription: string) => {
+    setValue("description", improvedDescription)
+  }
 
   const onSubmit = async (data: CreateRideForm) => {
     setIsLoading(true)
@@ -68,6 +161,10 @@ export default function CreateRidePage() {
         body: JSON.stringify({
           ...data,
           date: dateTime,
+          startLat: startPosition?.lat,
+          startLng: startPosition?.lng,
+          endLat: endPosition?.lat,
+          endLng: endPosition?.lng,
         }),
       })
 
@@ -112,10 +209,24 @@ export default function CreateRidePage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="description">Description</Label>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Sparkles className="h-3 w-3" />
+                  <span>AI Powered</span>
+                </div>
+              </div>
+              <AIWritingAssistant
+                onContentGenerated={handleAIDescriptionGenerated}
+                onContentImproved={handleAIDescriptionImproved}
+                generateContent={generateRideDescription}
+                improveContent={improveRideDescription}
+                currentContent={description}
+                placeholder="Describe the ride or let AI generate it..."
+              />
               <Textarea
                 id="description"
-                placeholder="Describe the ride route, meeting point, and any important details..."
+                placeholder="Describe the ride route, meeting point, and any important details... or use AI to generate above"
                 rows={6}
                 {...register("description")}
               />
@@ -123,28 +234,41 @@ export default function CreateRidePage() {
                 <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="startLocation">Start Location</Label>
-                <Input
-                  id="startLocation"
-                  placeholder="Starting point"
-                  {...register("startLocation")}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-base font-semibold mb-2 block">Select Route on Map</Label>
+                <MapPicker
+                  startPosition={startPosition}
+                  endPosition={endPosition}
+                  onStartSelect={handleStartSelect}
+                  onEndSelect={handleEndSelect}
+                  mode={mapMode}
+                  onModeChange={setMapMode}
                 />
-                {errors.startLocation && (
-                  <p className="text-sm text-destructive">{errors.startLocation.message}</p>
-                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="endLocation">End Location</Label>
-                <Input
-                  id="endLocation"
-                  placeholder="Destination"
-                  {...register("endLocation")}
-                />
-                {errors.endLocation && (
-                  <p className="text-sm text-destructive">{errors.endLocation.message}</p>
-                )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startLocation">Start Location</Label>
+                  <Input
+                    id="startLocation"
+                    placeholder="Starting point (or select on map)"
+                    {...register("startLocation")}
+                  />
+                  {errors.startLocation && (
+                    <p className="text-sm text-destructive">{errors.startLocation.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endLocation">End Location</Label>
+                  <Input
+                    id="endLocation"
+                    placeholder="Destination (or select on map)"
+                    {...register("endLocation")}
+                  />
+                  {errors.endLocation && (
+                    <p className="text-sm text-destructive">{errors.endLocation.message}</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">

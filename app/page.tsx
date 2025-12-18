@@ -50,11 +50,29 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <Navbar />
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-8">
+      <section className="container mx-auto px-4 py-20 text-center relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-8 backdrop-blur-sm">
             <Sparkles className="h-4 w-4" />
             <span className="text-sm font-medium">Bangalore's Premier Bike Riding Community</span>
+          </div>
+          
+          {/* Hero Image */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative w-full max-w-2xl h-64 md:h-80 rounded-2xl overflow-hidden shadow-xl border border-border/50">
+              <img 
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" 
+                alt="Bikers on road"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
+            </div>
           </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
@@ -71,7 +89,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
-              <Button size="lg" className="text-lg px-8 py-6">
+              <Button size="lg" className="text-lg px-8 py-6 shadow-lg">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -97,7 +115,14 @@ export default function LandingPage() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" 
+                alt="Community of bikers"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <MessageSquare className="h-6 w-6 text-primary" />
@@ -109,7 +134,14 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&q=80" 
+                alt="Group bike ride"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                 <Bike className="h-6 w-6 text-accent" />
@@ -121,7 +153,14 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1609535766154-9e89e84a2c0a?w=400&q=80" 
+                alt="Bikers chatting"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-secondary-foreground" />
@@ -133,7 +172,14 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" 
+                alt="AI assistance"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Bot className="h-6 w-6 text-primary" />
@@ -145,7 +191,14 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=400&q=80" 
+                alt="Bike route"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4">
                 <MapPin className="h-6 w-6 text-accent" />
@@ -157,7 +210,14 @@ export default function LandingPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 hover:border-primary/50 transition-all hover:shadow-lg">
+          <Card className="border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl overflow-hidden bg-card/50 backdrop-blur-sm">
+            <div className="h-48 overflow-hidden">
+              <img 
+                src="https://images.unsplash.com/photo-1609535766154-9e89e84a2c0a?w=400&q=80" 
+                alt="Safety gear"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <CardContent className="p-6">
               <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4">
                 <Shield className="h-6 w-6 text-secondary-foreground" />
@@ -172,8 +232,16 @@ export default function LandingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="container mx-auto px-4 py-20 bg-muted/30 rounded-3xl my-20">
-        <div className="max-w-4xl mx-auto">
+      <section className="container mx-auto px-4 py-20 bg-muted/20 rounded-3xl my-20 relative overflow-hidden">
+        {/* Background image */}
+        <div className="absolute inset-0 opacity-5">
+          <img 
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80" 
+            alt="Bikers background"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Why Join BLR Riders?
@@ -242,8 +310,15 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-4 py-20">
-        <Card className="max-w-4xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5">
-          <CardContent className="p-12 text-center">
+        <Card className="max-w-4xl mx-auto border border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5 overflow-hidden relative">
+          <div className="absolute inset-0 opacity-10">
+            <img 
+              src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=1200&q=80" 
+              alt="Bikers"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <CardContent className="p-12 text-center relative z-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Ready to Start Riding?
             </h2>
@@ -252,7 +327,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
-                <Button size="lg" className="text-lg px-8 py-6">
+                <Button size="lg" className="text-lg px-8 py-6 shadow-lg">
                   Create Account
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
