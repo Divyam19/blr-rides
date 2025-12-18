@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 
@@ -119,12 +119,12 @@ export function RideMap({
         />
         {startLat && startLng && (
           <Marker position={[startLat, startLng] as [number, number]} icon={startIcon}>
-            <L.Popup>Start Location</L.Popup>
+            <Popup>Start Location</Popup>
           </Marker>
         )}
         {endLat && endLng && (
           <Marker position={[endLat, endLng] as [number, number]} icon={endIcon}>
-            <L.Popup>End Location</L.Popup>
+            <Popup>End Location</Popup>
           </Marker>
         )}
         {routeCoordinates.length > 0 && (
@@ -141,7 +141,7 @@ export function RideMap({
             position={[location.lat, location.lng] as [number, number]}
             icon={userIcon}
           >
-            <L.Popup>{location.userName}</L.Popup>
+            <Popup>{location.userName}</Popup>
           </Marker>
         ))}
       </MapContainer>
