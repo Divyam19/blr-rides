@@ -32,6 +32,9 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [loadingSuggestions, setLoadingSuggestions] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const [isUserScrolling, setIsUserScrolling] = useState(false)
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
 
   useEffect(() => {
     fetchCurrentUser()
@@ -41,6 +44,13 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
     return () => clearInterval(interval)
   }, [conversationId])
 
+  // Initial scroll to bottom when messages first load
+  useEffect(() => {
+    if (!loading && messages.length > 0) {
+      setTimeout(() => scrollToBottom(true), 300)
+    }
+  }, [loading])
+
   useEffect(() => {
     // Load suggestions when messages change
     if (messages.length > 0 && !showSuggestions) {
@@ -49,8 +59,31 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
   }, [messages.length])
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    if (shouldAutoScroll && !isUserScrolling) {
+      scrollToBottom()
+    }
+  }, [messages, shouldAutoScroll, isUserScrolling])
+
+  // Check if user is near bottom of scroll
+  const checkIfNearBottom = () => {
+    if (!messagesContainerRef.current) return true
+    const container = messagesContainerRef.current
+    const threshold = 100 // pixels from bottom
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold
+  }
+
+  // Handle scroll events
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return
+    const isNearBottom = checkIfNearBottom()
+    setShouldAutoScroll(isNearBottom)
+    setIsUserScrolling(true)
+    
+    // Reset scrolling flag after a delay
+    setTimeout(() => {
+      setIsUserScrolling(false)
+    }, 150)
+  }
 
   const fetchCurrentUser = async () => {
     try {
@@ -66,9 +99,15 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
 
   const fetchMessages = async () => {
     try {
+      const wasNearBottom = checkIfNearBottom()
       const response = await fetch(`/api/chat/conversations/${conversationId}/messages`)
       const data = await response.json()
       setMessages(data.messages || [])
+      
+      // Only auto-scroll if user was near bottom
+      if (wasNearBottom) {
+        setTimeout(() => scrollToBottom(false), 100)
+      }
     } catch (error) {
       console.error("Error fetching messages:", error)
     } finally {
@@ -76,8 +115,18 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
     }
   }
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  const scrollToBottom = (force = false) => {
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current
+      if (force || shouldAutoScroll) {
+        requestAnimationFrame(() => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: force ? "smooth" : "auto"
+          })
+        })
+      }
+    }
   }
 
   const loadSuggestions = async () => {
@@ -134,6 +183,7 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
       timestamp: new Date(),
     }
     setMessages([...messages, tempMessage])
+    setShouldAutoScroll(true) // Auto-scroll when sending new message
 
     try {
       const response = await fetch(`/api/chat/conversations/${conversationId}/messages`, {
@@ -145,6 +195,7 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
       if (response.ok) {
         fetchMessages()
         setShowSuggestions(false) // Hide suggestions after sending
+        setTimeout(() => scrollToBottom(true), 200) // Force scroll after sending
       } else {
         // Remove optimistic message on error
         setMessages(messages)
@@ -164,8 +215,16 @@ export function ChatBox({ conversationId }: ChatBoxProps) {
       <CardHeader className="border-b">
         <h3 className="text-lg font-semibold">Chat</h3>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col p-0">
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+        <div 
+          ref={messagesContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth"
+          style={{ 
+            scrollBehavior: 'smooth',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
           {loading ? (
             <div className="space-y-2">
               {[1, 2, 3].map((i) => (

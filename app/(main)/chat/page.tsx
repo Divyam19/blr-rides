@@ -77,7 +77,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl h-[calc(100vh-8rem)]">
+    <div className="container mx-auto px-4 py-8 max-w-7xl h-[calc(100vh-8rem)] overflow-hidden">
       <div className="flex gap-4 h-full">
         {/* Conversations List */}
         <Card className="w-80 flex-shrink-0">
@@ -140,7 +140,7 @@ export default function ChatPage() {
         </Card>
 
         {/* Chat Box */}
-        <div className="flex-1">
+        <div className="flex-1 min-h-0 overflow-hidden">
           {selectedConversation ? (
             <ChatBox conversationId={selectedConversation} />
           ) : (

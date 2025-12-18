@@ -171,13 +171,18 @@ export default function CreateRidePage() {
       const result = await response.json()
 
       if (!response.ok) {
-        setError(result.error || "Failed to create ride")
+        const errorMsg = result.error || "Failed to create ride"
+        const details = result.details ? `\n\nDetails: ${JSON.stringify(result.details, null, 2)}` : ""
+        setError(errorMsg + details)
+        console.error("Ride creation error:", result)
         return
       }
 
       router.push(`/rides/${result.ride.id}`)
     } catch (err) {
-      setError("Something went wrong. Please try again.")
+      const errorMsg = err instanceof Error ? err.message : "Something went wrong. Please try again."
+      setError(errorMsg)
+      console.error("Ride creation error:", err)
     } finally {
       setIsLoading(false)
     }

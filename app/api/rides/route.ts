@@ -151,8 +151,9 @@ export async function POST(request: Request) {
     }
 
     console.error("Error creating ride:", error)
+    const errorMessage = error instanceof Error ? error.message : "Internal server error"
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: errorMessage, details: error instanceof Error ? error.stack : undefined },
       { status: 500 }
     )
   }
