@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { AIWritingAssistant } from "@/components/AIWritingAssistant"
-import { Sparkles } from "lucide-react"
+import { Sparkles, PenTool, ArrowLeft, FileText } from "lucide-react"
+import Link from "next/link"
 
 const createPostSchema = z.object({
   title: z.string().min(1).max(200),
@@ -127,56 +128,100 @@ export default function CreatePostPage() {
     }
   }
 
+  const communityTypeOptions = [
+    { value: "general", label: "General", icon: "💬", color: "bg-blue-500" },
+    { value: "rides", label: "Rides", icon: "🚴", color: "bg-green-500" },
+    { value: "questions", label: "Questions", icon: "❓", color: "bg-purple-500" },
+    { value: "marketplace", label: "Marketplace", icon: "🛒", color: "bg-orange-500" },
+  ]
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create a Post</CardTitle>
-          <CardDescription>Share something with the community</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="communityType">Community</Label>
-              <Select
-                value={communityType}
-                onValueChange={(value) => setValue("communityType", value as any)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="general">General</SelectItem>
-                  <SelectItem value="rides">Rides</SelectItem>
-                  <SelectItem value="questions">Questions</SelectItem>
-                  <SelectItem value="marketplace">Marketplace</SelectItem>
-                </SelectContent>
-              </Select>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header */}
+        <div className="mb-8">
+          <Link href="/feed">
+            <Button variant="ghost" size="sm" className="mb-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Feed
+            </Button>
+          </Link>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <PenTool className="h-6 w-6 text-white" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+            <div>
+              <h1 className="text-3xl font-bold">Create a Post</h1>
+              <p className="text-muted-foreground">Share your thoughts with the community</p>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Community Type Selection */}
+          <Card className="card-modern">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Choose Community
+              </CardTitle>
+              <CardDescription>Select where you want to share your post</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {communityTypeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setValue("communityType", option.value as any)}
+                    className={`p-4 rounded-xl border-2 transition-all text-left hover:scale-105 ${
+                      communityType === option.value
+                        ? "border-primary bg-primary/10 shadow-md"
+                        : "border-border hover:border-primary/50 bg-card"
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">{option.icon}</div>
+                    <div className="font-semibold text-sm">{option.label}</div>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Title */}
+          <Card className="card-modern">
+            <CardContent className="pt-6">
+              <Label htmlFor="title" className="text-base font-semibold mb-3 block">
+                What's on your mind?
+              </Label>
               <Input
                 id="title"
-                placeholder="Enter post title..."
+                placeholder="Give your post a catchy title..."
+                className="text-lg h-14 form-field-modern"
                 {...register("title")}
               />
               {errors.title && (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
+                <p className="text-sm text-destructive mt-2">{errors.title.message}</p>
               )}
-            </div>
-            <div className="space-y-2">
+            </CardContent>
+          </Card>
+
+          {/* Content with AI */}
+          <Card className="card-modern">
+            <CardHeader>
               <div className="flex items-center justify-between">
-                <Label htmlFor="content">Content</Label>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  Your Story
+                </CardTitle>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground bg-primary/10 px-2 py-1 rounded-full">
                   <Sparkles className="h-3 w-3" />
                   <span>AI Powered</span>
                 </div>
               </div>
+              <CardDescription>Write your post or let AI help you craft it</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <AIWritingAssistant
                 onContentGenerated={handleAIContentGenerated}
                 onContentImproved={handleAIContentImproved}
@@ -186,31 +231,62 @@ export default function CreatePostPage() {
                 placeholder="Describe what you want to write about..."
                 context={communityType}
               />
-              <Textarea
-                id="content"
-                placeholder="Write your post... or use AI to generate content above"
-                rows={10}
-                {...register("content")}
-              />
-              {errors.content && (
-                <p className="text-sm text-destructive">{errors.content.message}</p>
+              <div className="form-field-modern">
+                <Textarea
+                  id="content"
+                  placeholder="Share your thoughts, experiences, or questions... Start typing or use AI assistance above!"
+                  rows={12}
+                  className="resize-none text-base leading-relaxed"
+                  {...register("content")}
+                />
+                {errors.content && (
+                  <p className="text-sm text-destructive mt-2">{errors.content.message}</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Error Message */}
+          {error && (
+            <Card className="border-destructive/50 bg-destructive/10">
+              <CardContent className="pt-6">
+                <p className="text-sm text-destructive">{error}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-end sticky bottom-4 bg-background/80 backdrop-blur-sm p-4 rounded-xl border border-border/50 shadow-lg -mx-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => router.back()}
+              className="px-6"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              size="lg"
+              className="btn-modern px-8 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <PenTool className="h-4 w-4 mr-2" />
+                  Publish Post
+                </>
               )}
-            </div>
-            <div className="flex gap-2">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Creating..." : "Create Post"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
+            </Button>
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   )
 }

@@ -77,66 +77,75 @@ export default function HomePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Hero Section */}
-      <div className="text-center mb-12 relative">
-        <div className="mb-6 flex justify-center">
-          <div className="relative w-full max-w-xl h-48 md:h-64 rounded-xl overflow-hidden shadow-lg border border-border/50">
-            <img 
-              src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80" 
-              alt="Bikers on road"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent"></div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <div className="container mx-auto px-4 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16 relative fade-in">
+          <div className="mb-8 flex justify-center">
+            <div className="relative w-full max-w-3xl h-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl border border-border/50 group">
+              <img 
+                src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=800&q=80" 
+                alt="Bikers on road"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <h1 className="text-4xl md:text-6xl font-bold mb-3 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  Welcome to BLR Riders
+                </h1>
+                <p className="text-lg md:text-xl text-foreground/90 max-w-2xl mx-auto font-medium">
+                  Connect with fellow riders, discover amazing routes, and join exciting bike rides across Bangalore
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Link href="/rides">
+              <Button size="lg" className="btn-modern shadow-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                <Bike className="h-5 w-5 mr-2" />
+                Browse Rides
+              </Button>
+            </Link>
+            <Link href="/feed">
+              <Button size="lg" variant="outline" className="btn-modern border-2">
+                <MessageSquare className="h-5 w-5 mr-2" />
+                View Community
+              </Button>
+            </Link>
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-          Welcome to BLR Riders
-        </h1>
-        <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-          Connect with fellow riders, discover amazing routes, and join exciting bike rides across Bangalore
-        </p>
-        <div className="flex gap-4 justify-center flex-wrap">
-          <Link href="/rides">
-            <Button size="lg" className="shadow-md">
-              <Bike className="h-5 w-5 mr-2" />
-              Browse Rides
-            </Button>
-          </Link>
-          <Link href="/feed">
-            <Button size="lg" variant="outline">
-              <MessageSquare className="h-5 w-5 mr-2" />
-              View Community
-            </Button>
-          </Link>
-        </div>
-      </div>
 
       {/* Features Grid */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        <Card>
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
+        <Card className="card-modern stagger-item hover:scale-105 transition-transform">
           <CardHeader>
-            <MessageSquare className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Community Feed</CardTitle>
-            <CardDescription>
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-4">
+              <MessageSquare className="h-6 w-6 text-white" />
+            </div>
+            <CardTitle className="text-xl mb-2">Community Feed</CardTitle>
+            <CardDescription className="text-base">
               Share experiences, ask questions, and connect with other riders
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="card-modern stagger-item hover:scale-105 transition-transform">
           <CardHeader>
-            <Bike className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Host & Join Rides</CardTitle>
-            <CardDescription>
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-4">
+              <Bike className="h-6 w-6 text-white" />
+            </div>
+            <CardTitle className="text-xl mb-2">Host & Join Rides</CardTitle>
+            <CardDescription className="text-base">
               Create your own rides or join others for amazing biking adventures
             </CardDescription>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="card-modern stagger-item hover:scale-105 transition-transform">
           <CardHeader>
-            <Bot className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>AI Assistant</CardTitle>
-            <CardDescription>
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+              <Bot className="h-6 w-6 text-white" />
+            </div>
+            <CardTitle className="text-xl mb-2">AI Assistant</CardTitle>
+            <CardDescription className="text-base">
               Get instant answers about traffic rules, safety, and best practices
             </CardDescription>
           </CardHeader>
@@ -144,11 +153,14 @@ export default function HomePage() {
       </div>
 
       {/* Recent Posts */}
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Recent Community Posts</h2>
+      <div className="mb-16">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Recent Community Posts</h2>
+            <p className="text-muted-foreground">Latest discussions from the community</p>
+          </div>
           <Link href="/feed">
-            <Button variant="ghost" size="sm">
+            <Button variant="outline" size="lg" className="btn-modern">
               View All
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
@@ -157,28 +169,32 @@ export default function HomePage() {
         {loading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="card-modern">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-5/6"></div>
+                  <div className="skeleton h-6 rounded w-3/4 mb-4"></div>
+                  <div className="skeleton h-4 rounded w-full mb-2"></div>
+                  <div className="skeleton h-4 rounded w-5/6"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : recentPosts.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">No posts yet</p>
+          <Card className="card-modern">
+            <CardContent className="empty-state">
+              <MessageSquare className="empty-state-icon" />
+              <h3 className="text-xl font-semibold mb-2">No posts yet</h3>
+              <p className="text-muted-foreground mb-6">Be the first to share something!</p>
               <Link href="/post/create">
-                <Button>Create First Post</Button>
+                <Button size="lg" className="btn-modern">Create First Post</Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
-            {recentPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
+            {recentPosts.map((post, index) => (
+              <div key={post.id} className="stagger-item">
+                <PostCard post={post} />
+              </div>
             ))}
           </div>
         )}
@@ -186,17 +202,20 @@ export default function HomePage() {
 
       {/* Upcoming Rides */}
       <div className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Upcoming Rides</h2>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Upcoming Rides</h2>
+            <p className="text-muted-foreground">Join exciting biking adventures</p>
+          </div>
           <div className="flex gap-2">
             <Link href="/rides/recommended">
-              <Button variant="ghost" size="sm">
+              <Button variant="outline" size="lg" className="btn-modern">
                 <Sparkles className="h-4 w-4 mr-2" />
                 Recommended
               </Button>
             </Link>
             <Link href="/rides">
-              <Button variant="ghost" size="sm">
+              <Button variant="outline" size="lg" className="btn-modern">
                 View All
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
@@ -204,30 +223,34 @@ export default function HomePage() {
           </div>
         </div>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="card-modern">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                  <div className="h-4 bg-muted rounded w-full mb-2"></div>
-                  <div className="h-4 bg-muted rounded w-5/6"></div>
+                  <div className="skeleton h-6 rounded w-3/4 mb-4"></div>
+                  <div className="skeleton h-4 rounded w-full mb-2"></div>
+                  <div className="skeleton h-4 rounded w-5/6"></div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : upcomingRides.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <p className="text-muted-foreground mb-4">No upcoming rides</p>
+          <Card className="card-modern">
+            <CardContent className="empty-state">
+              <Bike className="empty-state-icon" />
+              <h3 className="text-xl font-semibold mb-2">No upcoming rides</h3>
+              <p className="text-muted-foreground mb-6">Host the first ride and start an adventure!</p>
               <Link href="/rides/create">
-                <Button>Host First Ride</Button>
+                <Button size="lg" className="btn-modern bg-gradient-to-r from-green-500 to-emerald-500">Host First Ride</Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {upcomingRides.map((ride) => (
-              <RideCard key={ride.id} ride={ride} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {upcomingRides.map((ride, index) => (
+              <div key={ride.id} className="stagger-item">
+                <RideCard ride={ride} />
+              </div>
             ))}
           </div>
         )}

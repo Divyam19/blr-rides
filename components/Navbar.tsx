@@ -21,11 +21,13 @@ export function Navbar() {
   ]
 
   return (
-    <nav className="border-b bg-background sticky top-0 z-50">
+    <nav className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary hover:text-primary/80 transition-colors">
-            <Bike className="h-6 w-6" />
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary hover:text-primary/80 transition-all hover:scale-105">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <Bike className="h-5 w-5 text-white" />
+            </div>
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               BLR Riders
             </span>
@@ -42,7 +44,11 @@ export function Navbar() {
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     size="sm"
-                    className="gap-2"
+                    className={`gap-2 transition-all ${
+                      isActive 
+                        ? "bg-gradient-to-r from-primary/10 to-accent/10 shadow-sm" 
+                        : "hover:bg-muted/50"
+                    }`}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
