@@ -18,29 +18,40 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email as string
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email as string
+            }
+          })
+
+          if (!user) {
+            return null
           }
-        })
 
-        if (!user) {
-          return null
-        }
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          )
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        )
+          if (!isPasswordValid) {
+            return null
+          }
 
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          }
+        } catch (error: any) {
+          // Handle database connection errors
+          if (error?.code === 'P1001') {
+            console.error('Database connection failed during authentication:', error.message)
+            // Return null to show generic error, or throw to show specific error
+            throw new Error('Database connection failed. Please check your database connection.')
+          }
+          // Re-throw other errors
+          throw error
         }
       }
     })

@@ -44,13 +44,23 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError("Invalid email or password")
+        // Check if it's a database connection error
+        if (result.error.includes("Database connection")) {
+          setError("Database connection failed. Please check your database connection and ensure your Supabase database is active.")
+        } else {
+          setError("Invalid email or password")
+        }
       } else {
         router.push("/")
         router.refresh()
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.")
+    } catch (err: any) {
+      const errorMessage = err?.message || "Something went wrong. Please try again."
+      if (errorMessage.includes("Database connection")) {
+        setError("Database connection failed. Please check your database connection and ensure your Supabase database is active.")
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
