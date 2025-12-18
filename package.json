@@ -10,7 +10,8 @@
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed-knowledge.ts",
-    "db:seed-posts": "tsx prisma/seed-posts.ts"
+    "db:seed-posts": "tsx prisma/seed-posts.ts",
+    "db:seed-all": "tsx prisma/seed-all.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
