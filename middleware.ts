@@ -27,8 +27,13 @@ export function middleware(request: NextRequest) {
   
   const isLoggedIn = !!sessionToken
 
-  // Allow homepage to load (it will show login prompt if needed)
+  // Landing page - always accessible
   if (pathname === "/") {
+    // If logged in, redirect to feed
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL("/feed", request.url))
+    }
+    // If not logged in, show landing page
     return NextResponse.next()
   }
 
@@ -39,9 +44,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  // If logged in and trying to access auth pages, redirect to home
+  // If logged in and trying to access auth pages, redirect to feed
   if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/", request.url))
+    return NextResponse.redirect(new URL("/feed", request.url))
   }
 
   return NextResponse.next()
