@@ -53,7 +53,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json({ user }, { status: 201 })
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Invalid input", details: error.errors },
@@ -61,9 +61,21 @@ export async function POST(request: Request) {
       )
     }
 
+    // Handle database connection errors
+    if (error?.code === 'P1001') {
+      return NextResponse.json(
+        { 
+          error: "Database connection failed. Please check your database connection string and ensure your Supabase database is active (not paused).",
+          details: "The database server cannot be reached. If using Supabase free tier, your database may be paused and needs to be resumed."
+        },
+        { status: 503 }
+      )
+    }
+
     console.error("Registration error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Internal server error"
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: errorMessage },
       { status: 500 }
     )
   }
